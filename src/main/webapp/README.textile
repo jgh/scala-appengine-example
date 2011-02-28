@@ -296,5 +296,7 @@ h2. Add to Git
 
 h2. Publish to App Engine
 
+h2. Testing locally
 
+h2. Using datastore and memcache
 
