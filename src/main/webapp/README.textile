@@ -1,0 +1,295 @@
+h1. Purpose
+
+Starting from scratch create a functioning development environment to develop scala applications running on Google App Engine.
+
+h2. Goals
+
+* Functioning web app running scala on GAE development server
+* IntelliJ development environemt
+* Automated build with SBT
+* Hot class and web resource reloading
+
+h1. Installation
+
+
+h2. Install SBT
+
+* Download SBT and create sbt script as per sbt doco.
+* Add sbt script to path.
+
+h2. Install IntelliJ
+
+* Download and install IntelliJ. I am using the community edition.
+* Install the the Scala plugin.
+* Optionally install the SBT plugin.
+
+h2. Install GAE
+
+
+h2. Create SBT project
+
+* make project directory.
+>mkdir ScalaAppEngine
+* cd to new directory.
+* Run SBT and create a new project.
+
+<pre>
+>sbt
+Project does not exist, create new project? (y/N/s) y
+Name: ScalaAppEngine
+Organization: org.jgh
+Version [1.0]:
+Scala version [2.7.7]: 2.8.1
+sbt version [0.7.4]:
+Getting Scala 2.7.7 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+        confs: [default]
+        2 artifacts copied, 0 already retrieved (9911kB/249ms)
+Getting org.scala-tools.sbt sbt_2.7.7 0.7.4 ...
+:: retrieving :: org.scala-tools.sbt#boot-app
+        confs: [default]
+        15 artifacts copied, 0 already retrieved (4096kB/999ms)
+[success] Successfully initialized directory structure.
+Getting Scala 2.8.1 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+        confs: [default]
+        2 artifacts copied, 0 already retrieved (15118kB/889ms)
+[info] Building project ScalaAppEngine 1.0 against Scala 2.8.1
+[info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
+>
+</pre>
+
+h2. Create SBT Project scala file
+
+create build and plugins directories in project directory
+create a prject scala file
+project.scala
+Enter
+
+<pre>
+import sbt._
+
+class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) with IdeaProject  {
+
+}
+</pre>
+Create SBT plugins.scala
+
+<pre>
+import sbt._
+class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
+   val ideaPluginRepo = "GH-pages repo" at "http://mpeltonen.github.com/maven/"
+  lazy val idea = "com.github.mpeltonen" % "sbt-idea-plugin" % "0.1-SNAPSHOT"
+  lazy val appEngine = "net.stbbs.yasushi" % "sbt-appengine-plugin" % "2.1" from "http://cloud.github.com/downloads/Yasushi/sbt-appengine-plugin/sbt-appengine-plugin-2.1.jar" ;
+}
+</pre>
+
+h2. Generate idea project
+
+<pre>
+>sbt
+>idea
+info]
+info] == idea ==
+info] Created C:\dev\workspace\ScalaAppEngine\.idea
+info] Created C:\dev\workspace\ScalaAppEngine/project/project.iml
+info] Excluding folder target
+info] Created C:\dev\workspace\ScalaAppEngine/ScalaAppEngine.iml
+info] == idea ==
+success] Successful.
+info]
+</pre>
+
+Open project in intellij
+https://github.com/mpeltonen/sbt-idea
+
+h2. Create web app files
+
+make direcotyr src/main/webapp/WEB-INF
+mk file web.xml
+
+<pre>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app
+   xmlns="http://java.sun.com/xml/ns/javaee"
+   version="2.5">
+  <display-name>Scala App Engine</display-name>
+</web-app>
+</pre>
+
+make file appengine-web.xml
+
+<pre>
+<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+  <application>ScalaAppEngine</application>
+  <version>1</version>
+</appengine-web-app>
+</pre>
+
+make an index.html file int eh webapp directory
+
+<pre>
+<html>
+<head><title>Scala App Engine</title></head>
+<body><b>Hello Warld</b></body>
+</html>
+</pre>
+
+
+h2. Set AppEngine home.
+
+Set the location of the app engine sdk in your sbt script.
+
+eg.
+
+<pre>
+set APPENGINE_SDK_HOME=C:\dev\tools\appengine\appengine-java-sdk-1.4.0
+</pre>
+h2. Run dev server.
+
+sbt>prepare-webapp
+sbt>dev-appserver-start
+
+Open in browser
+http://localhost:8080/
+
+Get sbt to monitor for source changes
+
+<pre>
+sbt>~prepare-webapp
+</pre>
+Fix typo, save html file and refresh browser to see changes
+
+h2. Now Some scala
+
+Open project settings
+Create a library 'lib_managed' and add lib_managed/scala_2.8.1/provided.
+This should contains the servlet jar.
+
+Go to src/main/scala
+
+Create TimeServlet.scala
+
+<pre>
+import java.util.Date
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
+
+class TimeServlet extends HttpServlet {
+
+  override def doGet(request:HttpServletRequest, response:HttpServletResponse) = {
+    response.setContentType("text/html")
+    response.getWriter.write("Time: " + new Date)
+
+  }
+}
+   </pre>
+
+Add servlet to web.xml
+
+<pre>
+<servlet>
+        <servlet-name>time</servlet-name>
+        <servlet-class>TimeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>time</servlet-name>
+        <url-pattern>/time.html</url-pattern>
+    </servlet-mapping>
+</pre>
+
+At this point you need to restart the dev server.
+
+Go to http://localhost:8080/time.html
+
+h2. JRebel
+
+Run:
+
+<pre>
+sbt>~prepare-web-app
+</pre>
+
+This command tells SBT to monitor source directories and process them when any files change.
+If you edit and save  the time servlet file then refresh the browser you will see the changes are not picked up
+
+For this we need JRebel.
+Download and install
+Add location to sbt script
+Eg.
+set JREBEL_JAR_PATH=C:\dev\tools\jrebel\jrebel-3.6\jrebel.jar
+
+Add JRebel trait to project scala
+
+class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) with IdeaProject with JRebel
+
+<pre>
+sbt>reload
+sbt>dev-appserver-start
+sbt>!prepare-webapp
+</pre>
+
+Reload re-compiles the project scala file.
+
+If you edit  and save the time servlet then refresh you browser then the changes should be immediately visible.
+
+h2. Add textile.
+
+Now I am writing this as a textile file as something more interesting I thought I would server it as HTML
+
+h3. Add textile library.
+
+The lift project has a textile parser. Lets use that one. To do so add a managed dependency to your project file.
+
+<pre>
+class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) with IdeaProject with JRebel {
+  val liftTextile = "net.liftweb" %% "lift-textile" % "2.2"
+}
+</pre>
+
+Note the double %% to use the the version compiled against the correct version of scala.
+http://code.google.com/p/simple-build-tool/wiki/CrossBuild
+
+h3. Create servlet
+
+Create a TextileServlet.scala
+
+<pre>
+import io.Source
+import java.util.Date
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
+import javax.servlet.{ServletContext, ServletConfig}
+import net.liftweb.textile.TextileParser
+
+class TextileServlet extends HttpServlet {
+  var ctx:ServletContext = null
+
+  override def init(config: ServletConfig) = {
+    ctx = config.getServletContext
+  }
+
+  override def doGet(request:HttpServletRequest, response:HttpServletResponse) = {
+    response.setContentType("text/html")
+    val textile = Source.fromURL(ctx.getResource("/README.textile")).mkString
+    val html = TextileParser.toHtml(textile)
+    response.getWriter.write(html.toString)
+
+  }
+}
+</pre>
+
+h3. Add servlet to web.xml
+<pre>
+<servlet>
+        <servlet-name>textile</servlet-name>
+        <servlet-class>TextileServlet</servlet-class>
+    </servlet>
+    ...
+    <servlet-mapping>
+        <servlet-name>textile</servlet-name>
+        <url-pattern>/readme.html</url-pattern>
+    </servlet-mapping>
+</pre>
+
+
+
+

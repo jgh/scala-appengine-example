@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app
+        xmlns="http://java.sun.com/xml/ns/javaee"
+        version="2.5">
+    <display-name>Scala App Engine</display-name>
+    <servlet>
+        <servlet-name>time</servlet-name>
+        <servlet-class>TimeServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>textile</servlet-name>
+        <servlet-class>TextileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>time</servlet-name>
+        <url-pattern>/time.html</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>textile</servlet-name>
+        <url-pattern>/readme.html</url-pattern>
+    </servlet-mapping>
+</web-app>
