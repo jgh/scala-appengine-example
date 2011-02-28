@@ -278,6 +278,7 @@ class TextileServlet extends HttpServlet {
 </pre>
 
 h3. Add servlet to web.xml
+
 <pre>
 <servlet>
         <servlet-name>textile</servlet-name>
