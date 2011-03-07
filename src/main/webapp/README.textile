@@ -1,39 +1,53 @@
 h1. Purpose
 
-Starting from scratch create a functioning development environment to develop scala applications running on Google App Engine.
+Document how to create a functioning development environment for developing scala applications running on Google App Engine.
 
 h2. Goals
 
 * Functioning web app running scala on GAE development server
-* IntelliJ development environemt
+* IntelliJ development environment
 * Automated build with SBT
 * Hot class and web resource reloading
 
-h1. Installation
+h1. Install Tools
 
+Before starting we need to install the tools we will be using.
 
-h2. Install SBT
+h3. Install SBT
 
-* Download SBT and create sbt script as per sbt doco.
+http://code.google.com/p/simple-build-tool/
+* Download SBT and create a sbt script as per sbt doco.
 * Add sbt script to path.
 
-h2. Install IntelliJ
+h3. Install IntelliJ
+
+http://www.jetbrains.com/idea/index.html
 
 * Download and install IntelliJ. I am using the community edition.
-* Install the the Scala plugin.
+* Install the Scala plugin.
 * Optionally install the SBT plugin.
 
-h2. Install GAE
+h3. Install Google App Engine SDK
+
+http://code.google.com/appengine/downloads.html
+* Download the app engine SDK for java
+* Installation is simply a matter of unziping the file.
 
 
-h2. Create SBT project
+
+h2. Create Project
+
+h3. Create SBT project
 
 * make project directory.
->mkdir ScalaAppEngine
 * cd to new directory.
 * Run SBT and create a new project.
 
+Eg.
+
 <pre>
+>mkdir ScalaAppEngine
+>cd ScalaAppEngine
 >sbt
 Project does not exist, create new project? (y/N/s) y
 Name: ScalaAppEngine
@@ -59,36 +73,44 @@ Getting Scala 2.8.1 ...
 >
 </pre>
 
-h2. Create SBT Project scala file
+h3. Create the SBT build files
 
-create build and plugins directories in project directory
-create a prject scala file
-project.scala
-Enter
+Create "build" and "plugins" directories in the "project" directory of your project.
+
+<pre>
+>mkdir project/build
+>mkdir project/plugins
+</pre>
+
+Create a project.scala file in the build directory
 
 <pre>
 import sbt._
-
 class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) with IdeaProject  {
-
 }
 </pre>
-Create SBT plugins.scala
+
+Create plugins.scala in the plugins directory.
 
 <pre>
 import sbt._
 class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
-   val ideaPluginRepo = "GH-pages repo" at "http://mpeltonen.github.com/maven/"
+  val ideaPluginRepo = "GH-pages repo" at "http://mpeltonen.github.com/maven/"
   lazy val idea = "com.github.mpeltonen" % "sbt-idea-plugin" % "0.1-SNAPSHOT"
   lazy val appEngine = "net.stbbs.yasushi" % "sbt-appengine-plugin" % "2.1" from "http://cloud.github.com/downloads/Yasushi/sbt-appengine-plugin/sbt-appengine-plugin-2.1.jar" ;
 }
 </pre>
 
-h2. Generate idea project
+SBT App Engine Plugin:
+https://github.com/Yasushi/sbt-appengine-plugin
+
+h3. Generate idea project
+
+Start SBT and run the 'idea' action.
 
 <pre>
 >sbt
->idea
+sbt>idea
 info]
 info] == idea ==
 info] Created C:\dev\workspace\ScalaAppEngine\.idea
@@ -101,12 +123,22 @@ info]
 </pre>
 
 Open project in intellij
+
+SBT Idea plugin:
 https://github.com/mpeltonen/sbt-idea
 
-h2. Create web app files
+h2. Create a simple web application
 
-make direcotyr src/main/webapp/WEB-INF
-mk file web.xml
+Now lets create a simple web app just to prove everything is working and we can serve static content.
+
+h3. Create web app files
+
+Create web.xml file
+<pre>
+mkdir src/main/webapp/WEB-INF
+</pre>
+
+Create a web.xml file in that directory. 
 
 <pre>
 <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -117,7 +149,7 @@ mk file web.xml
 </web-app>
 </pre>
 
-make file appengine-web.xml
+Also create a appengine-web.xml
 
 <pre>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
@@ -126,7 +158,7 @@ make file appengine-web.xml
 </appengine-web-app>
 </pre>
 
-make an index.html file int eh webapp directory
+Create an index.html file in the src/main/webapp directory
 
 <pre>
 <html>
@@ -135,39 +167,52 @@ make an index.html file int eh webapp directory
 </html>
 </pre>
 
+h2. Run Web Application
 
-h2. Set AppEngine home.
+h3. Set AppEngine home.
 
 Set the location of the app engine sdk in your sbt script.
 
 eg.
 
 <pre>
-set APPENGINE_SDK_HOME=C:\dev\tools\appengine\appengine-java-sdk-1.4.0
+set APPENGINE_SDK_HOME=C:\dev\tools\appengine\appengine-java-sdk-1.4.2
 </pre>
-h2. Run dev server.
-
-sbt>prepare-webapp
-sbt>dev-appserver-start
-
-Open in browser
-http://localhost:8080/
-
-Get sbt to monitor for source changes
 
 <pre>
-sbt>~prepare-webapp
+export APPENGINE_SDK_HOME=$TOOLS_HOME/appengine/appengine-java-sdk-1.4.2
 </pre>
-Fix typo, save html file and refresh browser to see changes
+
+h3. Build the web app
+
+<pre>
+sbt>prepare-webapp
+</pre>
+h3. Run dev server.
+
+<pre>
+sbt>dev-appserver-start
+</pre>
+
+h3. Open in browser
+
+http://localhost:8080/
+
+h3. Get sbt to monitor for source changes
+
+<pre>
+sbt>~ prepare-webapp
+</pre>
+
+The ~ tells sbt to monitor the source code for changes and when they occur run the action.
+
+To test, edit the html file, save and refresh your browser to see changes
 
 h2. Now Some scala
 
-Open project settings
-Create a library 'lib_managed' and add lib_managed/scala_2.8.1/provided.
-This should contains the servlet jar.
+h3. Create a servlet
 
 Go to src/main/scala
-
 Create TimeServlet.scala
 
 <pre>
@@ -184,21 +229,25 @@ class TimeServlet extends HttpServlet {
 }
    </pre>
 
-Add servlet to web.xml
+h3. Add servlet to web.xml
 
 <pre>
 <servlet>
-        <servlet-name>time</servlet-name>
-        <servlet-class>TimeServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>time</servlet-name>
-        <url-pattern>/time.html</url-pattern>
-    </servlet-mapping>
+    <servlet-name>time</servlet-name>
+    <servlet-class>TimeServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>time</servlet-name>
+    <url-pattern>/time.html</url-pattern>
+</servlet-mapping>
 </pre>
 
 At this point you need to restart the dev server.
+<pre>
+sbt>dev-appserver-stop dev-appserver-start
+</pre>
 
+h3. Test in browser
 Go to http://localhost:8080/time.html
 
 h2. JRebel
@@ -206,31 +255,37 @@ h2. JRebel
 Run:
 
 <pre>
-sbt>~prepare-web-app
+sbt>~ prepare-web-app
 </pre>
 
 This command tells SBT to monitor source directories and process them when any files change.
 If you edit and save  the time servlet file then refresh the browser you will see the changes are not picked up
 
 For this we need JRebel.
-Download and install
+h3. Download and install
+http://www.zeroturnaround.com/jrebel/current/
+
 Add location to sbt script
 Eg.
+<pre>
 set JREBEL_JAR_PATH=C:\dev\tools\jrebel\jrebel-3.6\jrebel.jar
 
+export JREBEL_JAR_PATH=$TOOLS_HOME/jrebel/jrebel-3.6/jrebel.jar
+</pre>
 Add JRebel trait to project scala
-
+<pre>
 class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) with IdeaProject with JRebel
-
+</pre>
+Restart SBT and run:
 <pre>
 sbt>reload
 sbt>dev-appserver-start
-sbt>!prepare-webapp
+sbt>~ prepare-webapp
 </pre>
 
-Reload re-compiles the project scala file.
+'reload' re-compiles the project scala file.
 
-If you edit  and save the time servlet then refresh you browser then the changes should be immediately visible.
+If you edit and save the time servlet then refresh you browser then the changes should be immediately visible.
 
 h2. Add textile.
 
@@ -273,7 +328,7 @@ class TextileServlet extends HttpServlet {
     val html = TextileParser.toHtml(textile)
     response.getWriter.write(html.toString)
 
-  }
+  
 }
 </pre>
 
@@ -281,14 +336,14 @@ h3. Add servlet to web.xml
 
 <pre>
 <servlet>
-        <servlet-name>textile</servlet-name>
-        <servlet-class>TextileServlet</servlet-class>
-    </servlet>
-    ...
-    <servlet-mapping>
-        <servlet-name>textile</servlet-name>
-        <url-pattern>/readme.html</url-pattern>
-    </servlet-mapping>
+  <servlet-name>textile</servlet-name>
+  <servlet-class>TextileServlet</servlet-class>
+</servlet>
+...
+<servlet-mapping>
+    <servlet-name>textile</servlet-name>
+    <url-pattern>/readme.html</url-pattern>
+</servlet-mapping>
 </pre>
 
 
@@ -300,3 +355,4 @@ h2. More stuff
 h2. Using datastore and memcache
 
 h2. Debug running dev server
+ to 
