@@ -19,6 +19,10 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>textile</servlet-name>
-        <url-pattern>/readme.html</url-pattern>
+        <url-pattern>*.html</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>textile</servlet-name>
+        <url-pattern>*.htm</url-pattern>
     </servlet-mapping>
 </web-app>
