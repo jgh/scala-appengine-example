@@ -1,0 +1,68 @@
+h2. Add textile.
+
+Now I am writing this as a textile file as something more interesting I thought I would serve it as HTML
+
+h3. Add textile library.
+
+The lift project has a textile parser. Lets use that one. To do so add a managed dependency to your project file.
+
+<pre>
+class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) with IdeaProject with JRebel {
+  val liftTextile = "net.liftweb" %% "lift-textile" % "2.2"
+}
+</pre>
+
+Note the double %% to use the the version compiled against the correct version of scala.
+http://code.google.com/p/simple-build-tool/wiki/CrossBuild
+
+h3. Create servlet
+
+Create a TextileServlet.scala
+
+<pre>
+import io.Source
+import java.util.Date
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
+import javax.servlet.{ServletContext, ServletConfig}
+import net.liftweb.textile.TextileParser
+
+class TextileServlet extends HttpServlet {
+  var ctx:ServletContext = null
+
+  override def init(config: ServletConfig) = {
+    ctx = config.getServletContext
+  }
+
+  override def doGet(request:HttpServletRequest, response:HttpServletResponse) = {
+    response.setContentType("text/html")
+    val textile = Source.fromURL(ctx.getResource("/README.textile")).mkString
+    val html = TextileParser.toHtml(textile)
+    response.getWriter.write(html.toString)
+
+  
+}
+</pre>
+
+h3. Add servlet to web.xml
+
+<pre>
+<servlet>
+  <servlet-name>textile</servlet-name>
+  <servlet-class>TextileServlet</servlet-class>
+</servlet>
+...
+<servlet-mapping>
+    <servlet-name>textile</servlet-name>
+    <url-pattern>/readme.html</url-pattern>
+</servlet-mapping>
+</pre>
+
+
+h2. Add to Git
+
+h2. Publish to App Engine
+h2. More stuff
+
+h2. Using memcache service and ETag's to cache content
+
+j

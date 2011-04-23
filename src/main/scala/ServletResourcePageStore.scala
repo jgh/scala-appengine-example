@@ -2,6 +2,7 @@ import io.Source
 import net.liftweb.textile.TextileParser
 import javax.servlet.http.HttpServlet
 import javax.servlet.{ServletConfig, ServletContext}
+import net.liftweb.textile.TextileParser.WikiURLInfo
 
 /**
  * Created by IntelliJ IDEA.
@@ -14,6 +15,9 @@ import javax.servlet.{ServletConfig, ServletContext}
 trait ServletResourcePageStore extends HttpServlet with PageStore {
   var ctx: ServletContext = null
 
+  def putSource(key:String, source:String) = {
+    ()
+  }// error("Put not supported for this page store.")
 
   override def init(config: ServletConfig) = {
     ctx = config.getServletContext
@@ -21,21 +25,14 @@ trait ServletResourcePageStore extends HttpServlet with PageStore {
   }
 
   def getPage(key: String): Page = {
-    val resource = ctx.getResource(key)
+
+    val resource = ctx.getResource(key + ".textile")
     if (resource == null) {
       EmptyPage
     } else {
       new Page() {
-        lazy val content ={
-          val textile = Source.fromURL(resource).mkString
-          Some(<html>
-          <head>
-            <title>Readme</title>
-              <link rel="stylesheet" href="docbook-xsl.css" type="text/css"/>
-          </head>
-          <body>{TextileParser.toHtml(textile)}</body>
-        </html>.toString)
-        }
+        val source = Some( Source.fromURL(resource).mkString)
+        lazy val content = source.map(TextilePageGenerator(key))
 
         val etag = Some(System.currentTimeMillis.toString)
 
@@ -45,6 +42,4 @@ trait ServletResourcePageStore extends HttpServlet with PageStore {
       }
     }
   }
-
-
 }

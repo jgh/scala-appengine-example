@@ -10,29 +10,37 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory
 
 trait PageStoreCache extends PageStore {
   lazy val cache = MemcacheServiceFactory.getMemcacheService;
+  def etagKey(key:String) = key + ".etag"
+  def contentKey(key:String) = key + ".content"
+
+  def generatePage(key:String) =  {
+    val page = super.getPage(key)
+    page.content.foreach(cache.put(contentKey(key), _))
+    page.etag.foreach(cache.put(etagKey(key), _))
+    page
+  }
+  abstract override def putSource(key: String, source:String) =  {
+    cache.delete(etagKey(key))
+    cache.delete(contentKey(key))
+    super.putSource(key, source)
+  }
 
   abstract override def getPage(key: String): Page = {
-   val etagKey = key + ".etag"
-   val contentKey = key + ".content"
-   val generatePage = super.getPage(_)
    new Page {
-       lazy val generate:Page  = {
-         val page = generatePage(key)
-         page.content.foreach(cache.put(contentKey, _))
-         page.etag.foreach(cache.put(etagKey, _))
-         page
-       }
+       lazy val generate:Page  = generatePage(key)
 
-       def matchesEtag(etag:String):Boolean = {etag != null && (cache.get(etagKey) == etag || generate.matchesEtag(etag))}
+       def matchesEtag(etag:String):Boolean = {etag != null && (cache.get(etagKey(key)) == etag || generate.matchesEtag(etag))}
 
-       lazy val content = cache.get(contentKey) match {
-         case value:String => Some(value + "<strong>from cache</strong>");
+       lazy val content = cache.get(contentKey(key)) match {
+         case value:String => Some(value + "<b>from cache</b>");
          case null => generate.content
        }
-       lazy val etag =  cache.get(etagKey) match {
+       lazy val etag =  cache.get(etagKey(key)) match {
          case value:String => Some(value);
          case null => generate.etag
        }
+
+       lazy val source = generate.source
      }
   }
 

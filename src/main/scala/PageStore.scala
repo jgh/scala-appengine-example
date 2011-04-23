@@ -7,6 +7,7 @@
  * To change this template use File | Settings | File Templates.
  */
 trait Page {
+  def source:Option[String]
   def content:Option[String]
   def etag:Option[String]
 
@@ -18,11 +19,13 @@ trait Page {
 }
 
 object EmptyPage extends Page {
+  val source = None
   val content = None
   val etag = None
   def matchesEtag(etag:String) = false
 }
 
 trait PageStore {
+  def putSource(key:String, source:String)
   def getPage(key:String):Page
 }

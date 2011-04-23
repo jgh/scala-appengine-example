@@ -1,87 +1,4 @@
-h2. Create a simple web application
-
-Now lets create a simple web app just to prove everything is working and we can serve static content.
-
-h3. Create web app files
-
-Create web.xml file
-<pre>
-mkdir src/main/webapp/WEB-INF
-</pre>
-
-Create a web.xml file in that directory. 
-
-<pre>
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<web-app
-   xmlns="http://java.sun.com/xml/ns/javaee"
-   version="2.5">
-  <display-name>Scala App Engine</display-name>
-</web-app>
-</pre>
-
-Also create a appengine-web.xml
-
-<pre>
-<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-  <application>ScalaAppEngine</application>
-  <version>1</version>
-</appengine-web-app>
-</pre>
-
-Create an index.html file in the src/main/webapp directory
-
-<pre>
-<html>
-<head><title>Scala App Engine</title></head>
-<body><b>Hello Warld</b></body>
-</html>
-</pre>
-
-h2. Run Web Application
-
-h3. Set AppEngine home.
-
-Set the location of the app engine sdk in your sbt script.
-
-eg.
-
-<pre>
-set APPENGINE_SDK_HOME=C:\dev\tools\appengine\appengine-java-sdk-1.4.2
-</pre>
-
-<pre>
-export APPENGINE_SDK_HOME=$TOOLS_HOME/appengine/appengine-java-sdk-1.4.2
-</pre>
-
-h3. Build the web app
-
-<pre>
-sbt>prepare-webapp
-</pre>
-h3. Run dev server.
-
-<pre>
-sbt>dev-appserver-start
-</pre>
-
-h3. Open in browser
-
-http://localhost:8080/
-
-h3. Get sbt to monitor for source changes
-
-<pre>
-sbt>~ prepare-webapp
-</pre>
-
-The ~ tells sbt to monitor the source code for changes and when they occur run the action.
-
-To test, edit the html file, save and refresh your browser to see changes
-
-"Scala":scala.html
-
-h2. Now Some scala
+h2. Now Some Scala
 
 h3. Create a servlet
 
@@ -165,6 +82,8 @@ sbt>~ prepare-webapp
 
 If you edit and save the time servlet then refresh you browser then the changes should be immediately visible.
 
+IntroducingTextile
+
 h2. Add textile.
 
 Now I am writing this as a textile file as something more interesting I thought I would server it as HTML
@@ -225,12 +144,48 @@ h3. Add servlet to web.xml
 </pre>
 
 
-h2. Add to Git
+h2. JRebel
 
-h2. Publish to App Engine
-h2. More stuff
+Run:
 
-h2. Using memcache service and ETag's to cache content
+<pre>
+sbt>~ prepare-web-app
+</pre>
 
-h2. Debug running dev server
- to 
+If you edit and save the servlet file then refresh the browser you will see the changes are not picked up
+
+For this we need JRebel.
+h3. Download and install
+http://www.zeroturnaround.com/jrebel/current/
+
+Add location to sbt script
+Eg.
+
+<pre>
+set JREBEL_JAR_PATH=C:\dev\tools\jrebel\jrebel-3.6\jrebel.jar
+
+export JREBEL_JAR_PATH=$TOOLS_HOME/jrebel/jrebel-3.6/jrebel.jar
+</pre>
+
+Add JRebel trait to project scala
+
+<pre>
+class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) with IdeaProject with JRebel
+</pre>
+
+Restart SBT and run:
+
+<pre>
+sbt>reload
+sbt>dev-appserver-start
+sbt>~ prepare-webapp
+</pre>
+
+"reload" re-compiles the scala project file.
+
+If you edit and save the servlet then refresh you browser then the changes should be immediately visible.
+
+Next CachingContent.
+
+new
+

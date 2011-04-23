@@ -4,8 +4,12 @@
         version="2.5">
     <display-name>Scala App Engine</display-name>
     <servlet>
-        <servlet-name>time</servlet-name>
-        <servlet-class>TimeServlet</servlet-class>
+        <servlet-name>reset</servlet-name>
+        <servlet-class>ResetServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>edit</servlet-name>
+        <servlet-class>EditServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>textile</servlet-name>
@@ -14,8 +18,12 @@
 
 
     <servlet-mapping>
-        <servlet-name>time</servlet-name>
-        <url-pattern>/time.html</url-pattern>
+        <servlet-name>reset</servlet-name>
+        <url-pattern>/reset.html</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>edit</servlet-name>
+        <url-pattern>/edit.html</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>textile</servlet-name>

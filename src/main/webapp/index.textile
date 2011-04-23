@@ -34,5 +34,5 @@ http://code.google.com/appengine/downloads.html
 * Installation is simply a matter of unziping the file.
 
 
-Next "Creating the Project":./project.html
+Next  CreateProject
 

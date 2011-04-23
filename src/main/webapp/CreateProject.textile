@@ -90,5 +90,4 @@ Open project in intellij
 SBT Idea plugin:
 https://github.com/mpeltonen/sbt-idea
 
-"Create a simple web application":webapp.html
-
+Next SimpleWebApplication
