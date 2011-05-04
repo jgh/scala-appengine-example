@@ -5,7 +5,7 @@ import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 class TextileServlet extends HttpServlet
  // with ServletResourcePageStore
   with DatastoreServicePageStore
-//  with PageStoreCache
+  with PageStoreCache
 {
 
   val log:Logger  = Logger.getLogger("TextileServlet");
@@ -20,7 +20,7 @@ class TextileServlet extends HttpServlet
     val key = request.getServletPath.replace(".html", "")
     val result: Page = getPage(key)
     val clientETag = request.getHeader("If-None-Match")
-    if (result.matchesEtag(clientETag)) {
+    if (clientETag != null && result.matchesEtag(clientETag)) {
       response.sendError(304, "Not modified")
     } else {
       result.content match {
