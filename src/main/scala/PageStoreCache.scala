@@ -29,7 +29,12 @@ trait PageStoreCache extends PageStore {
    new Page {
        lazy val generate:Page  = generatePage(key)
 
-       def matchesEtag(etag:String):Boolean = {etag != null && (cache.get(etagKey(key)) == etag || generate.matchesEtag(etag))}
+       def matchesEtag(clientEtag:String):Boolean =
+         cache.get(etagKey(key)) match {
+             case null =>  generate.matchesEtag(clientEtag);
+             case matches:String if matches.equals(clientEtag) => true;
+             case other:String  => false;
+         }
 
        lazy val content = cache.get(contentKey(key)) match {
          case value:String => Some(value + "<b>from cache</b>");
