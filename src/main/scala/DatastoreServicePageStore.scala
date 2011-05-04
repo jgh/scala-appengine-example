@@ -16,7 +16,14 @@ trait DatastoreServicePageStore extends PageStore {
     lazy val source = getProperty("textile")
     lazy val content = source.map(TextilePageGenerator(key))
 
-    def matchesEtag(etag: String): Boolean = this.etag.isDefined
+    def matchesEtag(clientEtag: String): Boolean ={
+      val tagQuery = new Query(kind)
+      tagQuery.addFilter("key", Query.FilterOperator.EQUAL, key)
+      tagQuery.addFilter("etag", Query.FilterOperator.EQUAL, clientEtag)
+      tagQuery.setKeysOnly
+      val etagPreparedQuery = datastore.prepare(tagQuery)
+      etagPreparedQuery.asSingleEntity != null
+    }
 
    def getProperty(name: String): Option[String] = {
       if (entity == null) {
