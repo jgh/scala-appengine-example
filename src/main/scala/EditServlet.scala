@@ -1,7 +1,11 @@
+import com.google.appengine.api.datastore.DatastoreServiceFactory
+import com.google.appengine.api.memcache.MemcacheServiceFactory
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 
 class EditServlet extends HttpServlet
   with DatastoreServicePageStore  with PageStoreCache {
+  lazy val cache = MemcacheServiceFactory.getMemcacheService;
+  lazy val datastore = DatastoreServiceFactory.getDatastoreService();
 
   override def doPost(request: HttpServletRequest, response: HttpServletResponse) = {
     val key = request.getParameter("key")

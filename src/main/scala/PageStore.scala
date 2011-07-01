@@ -1,11 +1,3 @@
-
-/**
- * Created by IntelliJ IDEA.
- * User: Jeremy
- * Date: 10/03/11
- * Time: 9:51 PM
- * To change this template use File | Settings | File Templates.
- */
 trait Page {
   def source:Option[String]
   def content:Option[String]

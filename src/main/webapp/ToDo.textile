@@ -2,7 +2,13 @@ Things to do:
 
 # Add to Git
 # Publish to App Engine
-# Using memcache service and ETag's to cache content
+# --Using memcache service and ETag's to cache content--
 # Debug running dev server
 # Upload Images
 # Security with user service.
+# Index of pages in store.
+# Edit link when page not found
+# Source links to github. Update url creator.
+# Scala formatting. scala xray?
+
+

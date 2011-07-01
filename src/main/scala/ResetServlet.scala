@@ -1,9 +1,14 @@
+import com.google.appengine.api.datastore.DatastoreServiceFactory
+import com.google.appengine.api.memcache.MemcacheServiceFactory
 import io.Source
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 import javax.servlet.{ServletContext, ServletConfig}
 
 class ResetServlet extends HttpServlet
   with DatastoreServicePageStore with PageStoreCache {
+
+  lazy val cache = MemcacheServiceFactory.getMemcacheService;
+  lazy val datastore = DatastoreServiceFactory.getDatastoreService();
 
   var ctx: ServletContext = null
   override def init(config: ServletConfig) = {
@@ -21,7 +26,7 @@ class ResetServlet extends HttpServlet
       }
     }
 
-    val templates = List("/CreateProject", "/IntroducingTextile", "/README", "/README2", "/SimpleWebApplication", "/SomeScala", "/ToDo", "/index")
+    val templates = List("/CreateProject", "/IntroducingTextile", "/README", "/README2", "/SimpleWebApplication", "/SomeScala", "/ToDo", "/index", "/CachingContent", "/DynamicContent")
     templates.foreach(addSource)
 
     val out =
@@ -31,7 +36,7 @@ class ResetServlet extends HttpServlet
             <link rel="stylesheet" href="docbook-xsl.css" type="text/css"/>
         </head>
         <body>
-          {templates.map(t => <p>{t}</p>)}
+          {templates.map(t => <p><a href={t + ".html"}>{t}</a></p>)}
             Done!
          </body>
       </html>.toString

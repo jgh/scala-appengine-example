@@ -39,16 +39,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="buildScala" level="project" />
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../tools/appengine/appengine-java-sdk-1.4.2/lib/user/appengine-api-1.0-sdk-1.4.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="library" name="lib_managed" level="project" />
+    <orderEntry type="library" name="GAE" level="application" />
   </component>
 </module>
 

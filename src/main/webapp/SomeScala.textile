@@ -1,5 +1,7 @@
 h2. Now Some Scala
 
+Now that we have a simple web app working lets add some scala.
+
 h3. Create a servlet
 
 Go to src/main/scala
@@ -41,7 +43,6 @@ sbt>dev-appserver-stop dev-appserver-start
 h3. Test in browser
 Go to http://localhost:8080/time.html
 
-h2. JRebel
 
 Run:
 
@@ -51,8 +52,12 @@ sbt>~ prepare-web-app
 
 If you edit and save the time servlet file then refresh the browser you will see the changes are not picked up
 
-For this we need JRebel.
+h2. JRebel
+
+To dynamically reload classes we need JRebel.
+
 h3. Download and install
+
 http://www.zeroturnaround.com/jrebel/current/
 
 Add location to sbt script
@@ -185,7 +190,6 @@ sbt>~ prepare-webapp
 
 If you edit and save the servlet then refresh you browser then the changes should be immediately visible.
 
-Next CachingContent.
+Next IntroducingTextile.
 
-new
 

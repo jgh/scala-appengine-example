@@ -1,5 +1,7 @@
 h2. Create Project
 
+In this step we set up our project so we can start coding.
+
 h3. Create SBT project
 
 * make project directory.
@@ -38,11 +40,23 @@ Getting Scala 2.8.1 ...
 
 h3. Create the SBT build files
 
-Create "build" and "plugins" directories in the "project" directory of your project.
+Create build and plugins directories in the project directory of your project.
 
 <pre>
 >mkdir project/build
 >mkdir project/plugins
+</pre>
+
+Create plugins.scala in the plugins directory. This tells SBT where to load plugins from. In this case we want to use the
+idea and app engine plugins
+
+<pre>
+import sbt._
+class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
+  val ideaPluginRepo = "GH-pages repo" at "http://mpeltonen.github.com/maven/"
+  lazy val idea = "com.github.mpeltonen" % "sbt-idea-plugin" % "0.1-SNAPSHOT"
+  lazy val appEngine = "net.stbbs.yasushi" % "sbt-appengine-plugin" % "2.1" from "http://cloud.github.com/downloads/Yasushi/sbt-appengine-plugin/sbt-appengine-plugin-2.1.jar" ;
+}
 </pre>
 
 Create a project.scala file in the build directory
@@ -53,16 +67,6 @@ class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) wi
 }
 </pre>
 
-Create plugins.scala in the plugins directory.
-
-<pre>
-import sbt._
-class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
-  val ideaPluginRepo = "GH-pages repo" at "http://mpeltonen.github.com/maven/"
-  lazy val idea = "com.github.mpeltonen" % "sbt-idea-plugin" % "0.1-SNAPSHOT"
-  lazy val appEngine = "net.stbbs.yasushi" % "sbt-appengine-plugin" % "2.1" from "http://cloud.github.com/downloads/Yasushi/sbt-appengine-plugin/sbt-appengine-plugin-2.1.jar" ;
-}
-</pre>
 
 SBT App Engine Plugin:
 https://github.com/Yasushi/sbt-appengine-plugin
@@ -85,7 +89,7 @@ success] Successful.
 info]
 </pre>
 
-Open project in intellij
+h3. Open project in intellij
 
 SBT Idea plugin:
 https://github.com/mpeltonen/sbt-idea

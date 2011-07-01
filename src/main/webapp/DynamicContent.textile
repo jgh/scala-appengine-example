@@ -1,0 +1,173 @@
+h2. Dynamic Content
+
+Currently updating content requires we redeploy the app. This is not ideal so lets use the app engines data store to
+hold our pages so we can update them.
+
+h3. Extend PageStore
+
+Add a method to the PageStore to allow the source of a page to be updated.
+
+<pre>
+trait PageStore {
+  def putSource(key:String, source:String)
+  def getPage(key:String):Page
+}
+</pre>
+h3. Add the source to a Page
+
+<pre>
+trait Page {
+  def source:Option[String]
+  def content:Option[String]
+  ...
+</pre>
+
+h3. DatastoreServicePageStore
+
+Create a new PageStore implementation that uses the DatastoreService.
+
+<pre>
+import com.google.appengine.api.datastore._
+import compat.Platform
+
+trait DatastoreServicePageStore extends PageStore {
+  def datastore: DatastoreService
+  /**
+   * An implementation of a Page backed by a DatastoreService entity.
+   */
+  class PageEntity(key: String) extends Page {
+    val kind: String = "Page"
+    //Get or create entity
+    lazy val entity: Entity = {
+      val query = new Query(kind)
+      query.addFilter("key", Query.FilterOperator.EQUAL, key)
+      val preparedQuery = datastore.prepare(query)
+      preparedQuery.asSingleEntity match {
+        case null => {
+          val e = new Entity(kind)
+          e.setProperty("key", key)
+          e
+        }
+        case _@e => e
+      }
+    }
+
+    lazy val etag = getPropertyAsOption("etag")
+    lazy val source = getPropertyAsOption("textile")
+    lazy val content = source.map(TextilePageGenerator(key))
+
+    def setEtag(etag: String) = entity.setProperty("etag", etag )
+    def setSource(source: String) = entity.setProperty("textile", new Text(source))
+    def save(): Unit = datastore.put(entity)
+
+    def matchesEtag(clientEtag: String): Boolean = {
+      val tagQuery = new Query(kind)
+      tagQuery.addFilter("key", Query.FilterOperator.EQUAL, key)
+      tagQuery.addFilter("etag", Query.FilterOperator.EQUAL, clientEtag)
+      val etagPreparedQuery = datastore.prepare(tagQuery)
+      etagPreparedQuery.countEntities(FetchOptions.Builder.withLimit(1)) == 1
+    }
+
+    def getPropertyAsOption(name: String): Option[String] = {
+      entity.getProperty(name) match {
+        case value: Text => Some(value.getValue);
+        case value: String => Some(value);
+        case null => None
+      }
+    }
+  }
+
+  def putSource(key: String, source: String) {
+    val pageEntity = new PageEntity(key)
+    pageEntity.setSource(source);
+    pageEntity.setEtag(Platform.currentTime.toString);
+    pageEntity.save()
+  }
+  def getPage(key: String): Page = new PageEntity(key)
+}
+</pre>
+
+h3. Clear cache when source updated.
+
+Now that the pages are updated dynamically we need to clear the cache.
+
+<pre>
+  abstract override def putSource(key: String, source:String) =  {
+    cache.delete(etagKey(key))
+    cache.delete(contentKey(key))
+    super.putSource(key, source)
+  }
+</pre>
+
+h3. Create EditServlet to let us edit content
+
+The class is pretty simple. doGet just displays a form with the existing source in a big text area and post back to itself.
+doPost saves the updated content to the page store.
+
+<pre>
+import com.google.appengine.api.datastore.DatastoreServiceFactory
+import com.google.appengine.api.memcache.MemcacheServiceFactory
+import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
+
+class EditServlet extends HttpServlet
+  with DatastoreServicePageStore  with PageStoreCache {
+  lazy val cache = MemcacheServiceFactory.getMemcacheService;
+  lazy val datastore = DatastoreServiceFactory.getDatastoreService();
+
+  override def doPost(request: HttpServletRequest, response: HttpServletResponse) = {
+    val key = request.getParameter("key")
+    val source = request.getParameter("source")
+    putSource(key, source)
+    getPage(key).content.foreach( response.getWriter.write(_))
+  }
+
+  override def doGet(request: HttpServletRequest, response: HttpServletResponse) = {
+    val key = request.getParameter("key")
+    if (key == null) {
+      response.sendError(404, "No key found")
+      error("No key")
+    }
+    val page = getPage(key)
+    val source =  page.source match {
+      case Some(s) => s;
+      case None => ""
+    }
+     val out =
+   <html>
+          <head>
+            <title>Edit</title>
+              <link rel="stylesheet" href="docbook-xsl.css" type="text/css"/>
+          </head>
+          <body>
+          <form name="form1" method="post" >
+            <input type="hidden" name="key" value={key}/>
+            <textarea name="source"  rows="80" cols="120">
+              {source}
+            </textarea>
+            <br/>
+            <input type="submit" name="Submit" border="0" class="buttonblue" onmouseover="this.style.color='#fbe249';" onmouseout="this.style.color='#FFF';"/>
+          </form>
+          </body>
+        </html>.toString
+          response.getWriter.write(out)
+    ()
+  }
+}
+</pre>
+
+h3. Add edit link to Page html
+
+In the  TextilePageGenerator add an edit link to all our pages.
+
+<pre>
+  def apply(key:String)(textile:String):String = {
+   <html>
+          <head>
+            <title>Readme</title>
+              <link rel="stylesheet" href="docbook-xsl.css" type="text/css"/>
+          </head>
+          <body>{TextileParser.toHtml(textile, Some(DefaultRewriter()))}
+          <p><a href={"edit.html?key=" +key}>edit</a></p></body>
+        </html>.toString
+  }
+</pre>

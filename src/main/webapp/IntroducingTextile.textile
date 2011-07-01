@@ -1,6 +1,8 @@
+IntroducingTextile
+
 h2. Add textile.
 
-Now I am writing this as a textile file as something more interesting I thought I would serve it as HTML
+Now I am writing this as a textile file as something more interesting I thought I would server it as HTML
 
 h3. Add textile library.
 
@@ -15,9 +17,45 @@ class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) wi
 Note the double %% to use the the version compiled against the correct version of scala.
 http://code.google.com/p/simple-build-tool/wiki/CrossBuild
 
+h3. Create a Textile helper object
+
+This class wraps the resulting html in the required html tags and handles wiki links.
+TextilePageGenerator.scala
+
+<pre>
+import net.liftweb.textile.TextileParser
+import net.liftweb.textile.TextileParser.WikiURLInfo
+
+object TextilePageGenerator {
+  def apply(key:String)(textile:String):String = {
+   <html>
+          <head>
+            <title>Readme</title>
+              <link rel="stylesheet" href="docbook-xsl.css" type="text/css"/>
+          </head>
+          <body>{TextileParser.toHtml(textile, Some(DefaultRewriter()))}
+          <p><a href={"edit.html?key=" +key}>edit</a></p></body>
+        </html>.toString
+  }
+
+
+  case class DefaultRewriter() extends TextileParser.RewriteFunc {
+    def apply(in: WikiURLInfo) = in match {
+      case WikiURLInfo(word, _) =>
+        ("/" + word + ".html", scala.xml.Text(word), None)
+    }
+  }
+}
+</pre>
+
+h3. Create a textile file
+
+Create a textile file called README.textile in the src/main/webapp directory. This allows the file to be loaded as a
+servlet resource in the servlet we are about to write.
+
 h3. Create servlet
 
-Create a TextileServlet.scala
+Create a TextileServlet.scala in the src/main/scala
 
 <pre>
 import io.Source
@@ -38,8 +76,7 @@ class TextileServlet extends HttpServlet {
     val textile = Source.fromURL(ctx.getResource("/README.textile")).mkString
     val html = TextileParser.toHtml(textile)
     response.getWriter.write(html.toString)
-
-  
+  }
 }
 </pre>
 
@@ -58,11 +95,5 @@ h3. Add servlet to web.xml
 </pre>
 
 
-h2. Add to Git
+Next CachingContent.
 
-h2. Publish to App Engine
-h2. More stuff
-
-h2. Using memcache service and ETag's to cache content
-
-j

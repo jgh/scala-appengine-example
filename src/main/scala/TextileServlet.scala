@@ -1,17 +1,20 @@
-import compat.Platform
+import com.google.appengine.api.datastore.DatastoreServiceFactory
+import com.google.appengine.api.memcache.MemcacheServiceFactory
 import java.util.logging.Logger
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 
 class TextileServlet extends HttpServlet
- // with ServletResourcePageStore
-  with DatastoreServicePageStore
-  with PageStoreCache
+  with ServletResourcePageStore
+//  with DatastoreServicePageStore
+//  with PageStoreCache
 {
+
+  lazy val cache = MemcacheServiceFactory.getMemcacheService;
+  lazy val datastore = DatastoreServiceFactory.getDatastoreService();
 
   val log:Logger  = Logger.getLogger("TextileServlet");
 
   override def doPost(request: HttpServletRequest, response: HttpServletResponse) = {
-    log.info("do get")
     doGet(request, response)
   }
 
@@ -21,6 +24,7 @@ class TextileServlet extends HttpServlet
     val result: Page = getPage(key)
     val clientETag = request.getHeader("If-None-Match")
     if (clientETag != null && result.matchesEtag(clientETag)) {
+      //Browser will display it's cached version.
       response.sendError(304, "Not modified")
     } else {
       result.content match {

@@ -1,18 +1,14 @@
-import com.google.appengine.api.memcache.MemcacheServiceFactory
-
-/**
- * Created by IntelliJ IDEA.
- * User: Jeremy
- * Date: 10/03/11
- * Time: 9:53 PM
- * To change this template use File | Settings | File Templates.
- */
+import com.google.appengine.api.memcache.MemcacheService
 
 trait PageStoreCache extends PageStore {
-  lazy val cache = MemcacheServiceFactory.getMemcacheService;
+  //Declare the dependency required by this trait. Any class using this trait must define a cache.
+  def cache:MemcacheService
   def etagKey(key:String) = key + ".etag"
   def contentKey(key:String) = key + ".content"
 
+  /**
+   * Get page from super and put results into memcache.
+   */
   def generatePage(key:String) =  {
     val page = super.getPage(key)
     page.content.foreach(cache.put(contentKey(key), _))
@@ -48,5 +44,4 @@ trait PageStoreCache extends PageStore {
        lazy val source = generate.source
      }
   }
-
 }

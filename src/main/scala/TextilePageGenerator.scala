@@ -1,16 +1,7 @@
 import net.liftweb.textile.TextileParser
 import net.liftweb.textile.TextileParser.WikiURLInfo
 
-/**
- * Created by IntelliJ IDEA.
- * User: Jeremy
- * Date: 19/04/11
- * Time: 8:08 AM
- * To change this template use File | Settings | File Templates.
- */
-
 object TextilePageGenerator {
-
   def apply(key:String)(textile:String):String = {
    <html>
           <head>
