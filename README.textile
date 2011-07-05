@@ -1,0 +1,19 @@
+h1. Introduction
+
+This project began as a learning tool I used to learn about SBT and deploying scala applications to Google App Engine.
+The notes I was taking became the content of this application. So far I have writen up the following topics:
+
+# DevelopmentEnvironment Installing the tools required to set up a development environment for writing applications with Scala, SBT, Intellij and App Engine.
+# CreateProject Creating a new project with SBT and IntelliJ integration.
+# SimpleWebApplication  Creating a simple web application and deploying it to the local development server.
+# SomeScala Adding a scala servlet to the web application.
+# IntroducingTextile Using textile to render HTML. Also provides an example of SBT`s dependency management.
+# CachingContent Using app engine`s MemCacheService API and HTTP etags to implement caching.
+# DynamicContent Using app engine`s DataStoreService API to allow users to update content forming a basic wiki application.
+
+Hopefully someone finds this useful.
+
+The application is deployed here:
+
+http://scala-appengine-example.appspot.google.com/
+
