@@ -33,7 +33,7 @@ trait PageStoreCache extends PageStore {
          }
 
        lazy val content = cache.get(contentKey(key)) match {
-         case value:String => Some(value + "<b>from cache</b>");
+         case value:String => Some(value + "<!--from cache-->");
          case null => generate.content
        }
        lazy val etag =  cache.get(etagKey(key)) match {

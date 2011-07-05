@@ -10,13 +10,15 @@ class ResetServlet extends HttpServlet
   lazy val cache = MemcacheServiceFactory.getMemcacheService;
   lazy val datastore = DatastoreServiceFactory.getDatastoreService();
 
+  val templates = List("/DevelopmentEnvironment", "/CreateProject", "/IntroducingTextile", "/SimpleWebApplication", "/SomeScala", "/ToDo", "/index", "/CachingContent", "/DynamicContent")
+
   var ctx: ServletContext = null
   override def init(config: ServletConfig) = {
     ctx = config.getServletContext
     super.init
   }
 
-  override def doGet(request: HttpServletRequest, response: HttpServletResponse) = {
+  def addTemplatesToDatastore {
     def addSource(key: String) = {
       val resource = ctx.getResource(key + ".textile")
       if (resource != null) {
@@ -25,9 +27,11 @@ class ResetServlet extends HttpServlet
         error("couldn't find key: " + key)
       }
     }
-
-    val templates = List("/CreateProject", "/IntroducingTextile", "/README", "/README2", "/SimpleWebApplication", "/SomeScala", "/ToDo", "/index", "/CachingContent", "/DynamicContent")
     templates.foreach(addSource)
+  }
+
+  override def doGet(request: HttpServletRequest, response: HttpServletResponse) = {
+    addTemplatesToDatastore
 
     val out =
       <html>
@@ -36,8 +40,10 @@ class ResetServlet extends HttpServlet
             <link rel="stylesheet" href="docbook-xsl.css" type="text/css"/>
         </head>
         <body>
-          {templates.map(t => <p><a href={t + ".html"}>{t}</a></p>)}
-            Done!
+          {templates.map(t =>
+          <p><a href={t + ".html"}>{t}</a></p>
+          )}
+          Done!
          </body>
       </html>.toString
     response.getWriter.write(out)

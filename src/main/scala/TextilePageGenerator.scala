@@ -5,7 +5,7 @@ object TextilePageGenerator {
   def apply(key:String)(textile:String):String = {
    <html>
           <head>
-            <title>Readme</title>
+            <title>Scala AppEngine Example</title>
               <link rel="stylesheet" href="docbook-xsl.css" type="text/css"/>
           </head>
           <body>{TextileParser.toHtml(textile, Some(DefaultRewriter()))}

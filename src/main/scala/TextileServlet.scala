@@ -4,9 +4,9 @@ import java.util.logging.Logger
 import javax.servlet.http.{HttpServletResponse, HttpServletRequest, HttpServlet}
 
 class TextileServlet extends HttpServlet
-  with ServletResourcePageStore
-//  with DatastoreServicePageStore
-//  with PageStoreCache
+//  with ServletResourcePageStore
+  with DatastoreServicePageStore
+  with PageStoreCache
 {
 
   lazy val cache = MemcacheServiceFactory.getMemcacheService;
@@ -33,7 +33,8 @@ class TextileServlet extends HttpServlet
           result.etag.foreach(response.setHeader("ETag", _))
           response.getWriter.write(content)
         }
-        case None => response.sendError(404, "No content found for key: " + key)
+//        case None => response.sendError(404, "No content found for key: " + key)
+        case None => response.sendRedirect("/edit.html?key=" +key)
       }
     }
     ()
