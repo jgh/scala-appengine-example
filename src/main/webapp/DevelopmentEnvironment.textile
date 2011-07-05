@@ -1,0 +1,26 @@
+h1. Install Tools
+
+Before starting we need to install the tools we will be using.
+
+h3. Install SBT
+
+http://code.google.com/p/simple-build-tool/
+* Download SBT and create a sbt script as per sbt doco.
+* Add sbt script to path.
+
+h3. Install IntelliJ
+
+http://www.jetbrains.com/idea/index.html
+
+* Download and install IntelliJ. I am using the community edition.
+* Install the Scala plugin.
+* Optionally install the SBT plugin.
+
+h3. Install Google App Engine SDK
+
+http://code.google.com/appengine/downloads.html
+* Download the app engine SDK for java
+* Installation is simply a matter of unziping the file.
+
+Next  CreateProject
+

@@ -1,10 +1,9 @@
-IntroducingTextile
+h1. Add textile.
 
-h2. Add textile.
+Textile is a markup language that allows specially formatted text to be rendered as HTML.
+Since I am writing this as a textile file as something more interesting I thought I would serve it as HTML
 
-Now I am writing this as a textile file as something more interesting I thought I would server it as HTML
-
-h3. Add textile library.
+h3. Using SBTs dependency management to add a textile library.
 
 The lift project has a textile parser. Lets use that one. To do so add a managed dependency to your project file.
 
@@ -94,6 +93,4 @@ h3. Add servlet to web.xml
 </servlet-mapping>
 </pre>
 
-
 Next CachingContent.
-

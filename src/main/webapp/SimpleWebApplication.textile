@@ -1,12 +1,13 @@
-h2. Create a simple web application
+h1. Create a simple web application
 
 Now lets create a simple web app just to prove everything is working and we can serve static content.
 
 h3. Create web app files
 
 Create web.xml file
+
 <pre>
-mkdir src/main/webapp/WEB-INF
+>mkdir src/main/webapp/WEB-INF
 </pre>
 
 Create a web.xml file in that directory. 

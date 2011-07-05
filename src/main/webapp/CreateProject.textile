@@ -73,7 +73,7 @@ https://github.com/Yasushi/sbt-appengine-plugin
 
 h3. Generate idea project
 
-Start SBT and run the 'idea' action.
+Start SBT and run the idea action.
 
 <pre>
 >sbt
@@ -89,7 +89,7 @@ success] Successful.
 info]
 </pre>
 
-h3. Open project in intellij
+Open the project in intellij
 
 SBT Idea plugin:
 https://github.com/mpeltonen/sbt-idea
