@@ -16,6 +16,19 @@ class ScalaAppEngineProject(info: ProjectInfo) extends AppengineProject(info) wi
 Note the double %% to use the the version compiled against the correct version of scala.
 http://code.google.com/p/simple-build-tool/wiki/CrossBuild
 
+Now we need to update the idea project to have the new dependency.
+Start SBT and run the following commands:
+
+<pre>
+sbt> reload
+sbt> update
+sbt> idea
+</pre>
+
+reload - recompiles the project.scala file to pick up the new dependency
+update - pulls down the dependency from the internet somewhere and puts them in lib_managed directory.
+idea - regenerates the idea project files with new dependencies added.
+
 h3. Create a Textile helper object
 
 This class wraps the resulting html in the required html tags and handles wiki links.
