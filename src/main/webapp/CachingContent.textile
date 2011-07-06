@@ -1,4 +1,4 @@
-h2. Caching
+h1. Caching
 
 To reduce the amount of work our application has to do and save our quota lets introduce caching.
 
@@ -7,12 +7,10 @@ We will use two levels of caching:
 # Use HTTP ETags to return a 403 Not Modifed response if the page content has not changed since the client last requested it.
 # Use the MemcacheService build in to the app engine to cache the generated HTML.
 
-Firstly though this textile file is getting pretty big lets split it into smaller files.
 
-h3. Define a page store.
+h3. Update the Page trait.
 
-Lets define the concept of a PageStore, a repository that will hold the pages we are serving.
-Create a PageStore trait.
+A add etags to our page.
 
 <pre>
 trait Page {
@@ -39,79 +37,32 @@ object EmptyPage extends Page {
 
 </pre>
 
-Now we can seperate the page generation logic from the servlet that serves the content.
+h3. Add etag to PageStore implementation
 
-h3. Update textile servlet
-
-Change the servlet to use an implementation of the PageStore trait that we will mix in shortly.
-We generate a key from the request and use that to fetch the correct page from the store.
+Add the new PageStore methods to our ServletResourcePageStore.
 
 <pre>
-  override def doGet(request: HttpServletRequest, response: HttpServletResponse) = {
-    val key = request.getServletPath.replace(".html", "")
-    //getPage() is mixed in from PageStore trait
-    val result: Page = getPage(key)
-    result.content match {
-      case Some(content) => {
-        response.setContentType("text/html")
-        response.getWriter.write(content)
-      }
-      case None => response.sendError(404, "No content found for key: " + key)
-    }
-    ()
-  }
-</pre>
-
-Now we need to implement a page store. Lets start with a simple one that, like the old servlet, just loads
-the textile from a servlet resource and transforms it to html.
-
-Create ServletResourcePageStore.
-
-<pre>
-import io.Source
-import net.liftweb.textile.TextileParser
-import javax.servlet.http.HttpServlet
-import javax.servlet.{ServletConfig, ServletContext}
-
-trait ServletResourcePageStore extends HttpServlet with PageStore {
-  var ctx: ServletContext = null
-
-  override def init(config: ServletConfig) = {
-    ctx = config.getServletContext
-    super.init
-  }
-
   def getPage(key: String): Page = {
-
     val resource = ctx.getResource(key + ".textile")
     if (resource == null) {
       EmptyPage
     } else {
       new Page() {
-          val html = TextileParser.toHtml(textile)
-        val source = Some( Source.fromURL(resource).mkString)
         lazy val content = source.map(TextilePageGenerator(key))
         val etag = Some(System.currentTimeMillis.toString)
-        def matchesEtag(clientEtag: String): Boolean = {
-          clientEtag != null && clientEtag == etag
-        }
+        def matchesEtag(clientEtag: String): Boolean = false
       }
     }
   }
-}
 </pre>
 
-Introduce the page store into the servlet.
+We have no way of telling knowing when our servlet resource was updated. Therefore we return a new etag every time.
 
-<pre>
-class TextileServlet extends HttpServlet
-  with ServletResourcePageStore
-{
-...
-</pre>
+h3. Implement PageStoreCache
 
 We are now at the point where we can insert a caching page store.
-To this we define a PageStoreCache trait and mix that into the TextileServlet before the actual PageStore.
+To this we define a PageStoreCache trait and mix that into the TextileServlet after the actual PageStore. This means
+that calls to the PageStore methods will invoke the cache first.
 
 PageStoreCache trait:
 
@@ -125,7 +76,7 @@ trait PageStoreCache extends PageStore {
   def contentKey(key:String) = key + ".content"
 
   /**
-   * Call super class to get Page
+   * Call super class to get Page and put into cache.
    */
   def generatePage(key:String) =  {
     val page = super.getPage(key)
@@ -154,7 +105,6 @@ trait PageStoreCache extends PageStore {
          case null => generate.etag
        }
 
-       lazy val source = generate.source
      }
   }
 }
@@ -170,7 +120,10 @@ class TextileServlet extends HttpServlet
   with PageCacheStore
 {
 ...
+
+  lazy val cache = MemcacheServiceFactory.getMemcacheService;
 </pre>
+And add our MemcacheService dependency.
 
 Finally update the TextileServlet to use ETags.
 
@@ -180,7 +133,7 @@ Finally update the TextileServlet to use ETags.
     //   val key = "/README.textile"
     val key = request.getServletPath.replace(".html", "")
     val result: Page = getPage(key)
-  <b>  val clientETag = request.getHeader("If-None-Match")
+    val clientETag = request.getHeader("If-None-Match")
     if (clientETag != null && result.matchesEtag(clientETag)) {
       //Browser will display it's cached version.
       response.sendError(304, "Not modified")</b>

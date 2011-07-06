@@ -15,6 +15,8 @@ trait PageStore {
 </pre>
 h3. Add the source to a Page
 
+This will allow us to display the source to the user so they can edit it.
+
 <pre>
 trait Page {
   def source:Option[String]
@@ -171,3 +173,36 @@ In the  TextilePageGenerator add an edit link to all our pages.
         </html>.toString
   }
 </pre>
+
+h3. Update TextileServlet
+
+We need to mixin our new Page Store.
+
+<pre>
+class TextileServlet extends HttpServlet
+  with DatastoreServicePageStore
+  with PageStoreCache
+{
+</pre>
+
+JRebel doesn't seem to handle changing mixed in traits very well. I was getting incompatible class change errors. required
+a rebuild and restart.
+
+Next define the datastore that is used by the page store
+
+<pre>
+  lazy val datastore = DatastoreServiceFactory.getDatastoreService();
+</pre>
+
+Currently when a user requests an unknown page we return a 404. Instead lets redirect them
+to the edit page so they can add the page.
+
+<pre>
+      result.content match {
+        case Some(content) => {
+        ...
+        }
+        case None => response.sendRedirect("/edit.html?key=" +key)
+      }
+</pre>
+

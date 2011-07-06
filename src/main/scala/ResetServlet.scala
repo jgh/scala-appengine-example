@@ -10,7 +10,25 @@ class ResetServlet extends HttpServlet
   lazy val cache = MemcacheServiceFactory.getMemcacheService;
   lazy val datastore = DatastoreServiceFactory.getDatastoreService();
 
-  val templates = List("/DevelopmentEnvironment", "/CreateProject", "/IntroducingTextile", "/SimpleWebApplication", "/SomeScala", "/ToDo", "/index", "/CachingContent", "/DynamicContent")
+  val templates = List("/index", "/DevelopmentEnvironment", "/CreateProject", "/SimpleWebApplication", "/SomeScala",  "/IntroducingTextile", "/ServingMultiplePages", "/CachingContent", "/DynamicContent", "/ToDo",)
+  result.content match {
+    case Some(content) => {
+      response.setContentType("text/html")
+      result.etag.foreach(response.setHeader("ETag", _))
+      response.getWriter.write(content)
+    }
+    //        case None => response.sendError(404, "No content found for key: " + key)
+    case None => response.sendRedirect("/edit.html?key=" +key)
+  }
+  result.content match {
+    case Some(content) => {
+      response.setContentType("text/html")
+      result.etag.foreach(response.setHeader("ETag", _))
+      response.getWriter.write(content)
+    }
+    //        case None => response.sendError(404, "No content found for key: " + key)
+    case None => response.sendRedirect("/edit.html?key=" +key)
+  }
 
   var ctx: ServletContext = null
   override def init(config: ServletConfig) = {

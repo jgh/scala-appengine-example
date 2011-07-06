@@ -93,4 +93,4 @@ h3. Add servlet to web.xml
 </servlet-mapping>
 </pre>
 
-Next CachingContent.
+Next ServingMultiplePages.

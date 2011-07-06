@@ -8,6 +8,7 @@ The notes I was taking became the content of this application. So far I have wri
 # SimpleWebApplication  Creating a simple web application and deploying it to the local development server.
 # SomeScala Adding a scala servlet to the web application.
 # IntroducingTextile Using textile to render HTML. Also provides an example of SBT`s dependency management.
+# ServingMultiplePages Adding the ability to render multiple textile documents.
 # CachingContent Using app engine`s MemCacheService API and HTTP etags to implement caching.
 # DynamicContent Using app engine`s DataStoreService API to allow users to update content forming a basic wiki application.
 
@@ -15,5 +16,5 @@ Hopefully someone finds this useful.
 
 The application is deployed here:
 
-http://scala-appengine-example.appspot.google.com/
+http://jeremys-scala-example.appspot.com/
 

@@ -6,3 +6,5 @@ lib_managed
 *.ipr
 out
 target
+project/target
+project/*.iml

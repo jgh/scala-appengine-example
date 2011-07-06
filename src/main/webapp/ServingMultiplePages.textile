@@ -1,0 +1,93 @@
+h1. Supporting multiple textile pages
+
+Only serving a single hardcoded textile file is pretty limited. So lets
+beef up our app to support multiple files.
+
+h3. Define a page store.
+
+Lets define the concept of a PageStore, a repository that  holds the Pages we are serving.
+Create a PageStore trait.  A trait in scala is like an interface in java except it may contain implementation as
+ well as just defining the capabilities of a class.
+
+<pre>
+trait Page {
+  def content:Option[String]
+}
+
+trait PageStore {
+  def getPage(key:String):Page
+}
+
+object EmptyPage extends Page {
+  val content = None
+}
+
+</pre>
+
+Now we can separate the page generation logic from the servlet that serves the content.
+
+h3. Update textile servlet
+
+Change the servlet to use an implementation of the PageStore trait that we will mix in shortly.
+We generate a key from the request and use that to fetch the correct page from the store.
+
+<pre>
+  override def doGet(request: HttpServletRequest, response: HttpServletResponse) = {
+    val key = request.getServletPath.replace(".html", "")
+    //getPage() is mixed in from PageStore trait
+    val result: Page = getPage(key)
+    result.content match {
+      case Some(content) => {
+        response.setContentType("text/html")
+        response.getWriter.write(content)
+      }
+      case None => response.sendError(404, "No content found for key: " + key)
+    }
+    ()
+  }
+</pre>
+
+Now we need to implement a page store. Lets start with a simple one that, like the old servlet, just loads
+the textile from a servlet resource and transforms it to html. The difference here is that the pagestore takes a
+key and uses that to load the appropriate textile file.
+
+Create ServletResourcePageStore.
+
+<pre>
+import io.Source
+import net.liftweb.textile.TextileParser
+import javax.servlet.http.HttpServlet
+import javax.servlet.{ServletConfig, ServletContext}
+
+trait ServletResourcePageStore extends HttpServlet with PageStore {
+  var ctx: ServletContext = null
+
+  override def init(config: ServletConfig) = {
+    ctx = config.getServletContext
+    super.init
+  }
+
+  def getPage(key: String): Page = {
+    val resource = ctx.getResource(key + ".textile")
+    if (resource == null) {
+      EmptyPage
+    } else {
+      new Page() {
+        val html = TextileParser.toHtml(textile)
+        lazy val content = source.map(TextilePageGenerator(key))
+      }
+    }
+  }
+}
+</pre>
+
+Introduce the page store into the servlet.
+
+<pre>
+class TextileServlet extends HttpServlet
+  with ServletResourcePageStore
+{
+...
+</pre>
+
+Next CachingContent

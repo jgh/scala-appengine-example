@@ -25,7 +25,6 @@ trait ServletResourcePageStore extends HttpServlet with PageStore {
   }
 
   def getPage(key: String): Page = {
-
     val resource = ctx.getResource(key + ".textile")
     if (resource == null) {
       EmptyPage
@@ -33,12 +32,8 @@ trait ServletResourcePageStore extends HttpServlet with PageStore {
       new Page() {
         val source = Some( Source.fromURL(resource).mkString)
         lazy val content = source.map(TextilePageGenerator(key))
-
         val etag = Some(System.currentTimeMillis.toString)
-
-        def matchesEtag(clientEtag: String): Boolean = {
-          clientEtag != null && clientEtag == etag
-        }
+        def matchesEtag(clientEtag: String): Boolean = false
       }
     }
   }

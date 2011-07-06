@@ -1,14 +1,15 @@
 Things to do:
 
-# Add to Git
+# --Add to Git--
 # Publish to App Engine
 # --Using memcache service and ETag's to cache content--
-# Debug running dev server
+# Debug running dev server. Works sometimes from intellij requires you to rebuild the project first.
 # Upload Images
 # Security with user service.
 # Index of pages in store.
-# Edit link when page not found
+# --Edit link when page not found--
 # Source links to github. Update url creator.
 # Scala formatting. scala xray?
+# Search pages
 
 
