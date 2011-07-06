@@ -29,6 +29,9 @@ reload - recompiles the project.scala file to pick up the new dependency
 update - pulls down the dependency from the internet somewhere and puts them in lib_managed directory.
 idea - regenerates the idea project files with new dependencies added.
 
+If you open the project structure in intellij and go to the dependencies of your module you should see the the new jar listed
+there.
+
 h3. Create a Textile helper object
 
 This class wraps the resulting html in the required html tags and handles wiki links.

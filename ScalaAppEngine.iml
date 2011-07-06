@@ -52,7 +52,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../tools/appengine/appengine-java-sdk-1.4.3/lib/user/appengine-api-1.0-sdk-1.4.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../tools/appengine/appengine-java-sdk-1.5.1/lib/user/appengine-api-1.0-sdk-1.5.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
